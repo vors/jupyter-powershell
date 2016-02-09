@@ -1,5 +1,7 @@
 # jupyter-powershell
 
+PowerShell language kernel for Jupyter.
+
 ## Install kernel 
 
 ```powershell
