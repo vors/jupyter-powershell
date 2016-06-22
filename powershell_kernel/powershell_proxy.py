@@ -1,5 +1,8 @@
 import threading
-import queue
+try:
+    import queue
+except ImportError:
+    import Queue as queue
 from threading import Timer
 from time import sleep
 
