@@ -70,6 +70,7 @@ except ImportError:
 
 mswindows = (sys.platform == "win32")
 py2 = (sys.version_info[0] == 2)
+py27 = (sys.version_info[0] == 2 and sys.version_info[1] == 7)
 
 if mswindows:
     from . import winprocess
@@ -102,18 +103,32 @@ class Popen(subprocess.Popen):
     kill_called = False
     if mswindows:
         if py2:
-            def _execute_child(self, args, executable, preexec_fn, close_fds,
-                           cwd, env, universal_newlines, startupinfo,
-                           creationflags, shell,
-                           p2cread, p2cwrite,
-                           c2pread, c2pwrite,
-                           errread, errwrite):
-                return self._execute_child_compat(args, executable, preexec_fn, close_fds,
-                           cwd, env, universal_newlines, startupinfo,
-                           creationflags, shell,
-                           p2cread, p2cwrite,
-                           c2pread, c2pwrite,
-                           errread, errwrite)
+            if py27:
+                def _execute_child(self, args, executable, preexec_fn, close_fds,
+                            cwd, env, universal_newlines, startupinfo,
+                            creationflags, to_close, shell,
+                            p2cread, p2cwrite,
+                            c2pread, c2pwrite,
+                            errread, errwrite):
+                    return self._execute_child_compat(args, executable, preexec_fn, close_fds,
+                            cwd, env, universal_newlines, startupinfo,
+                            creationflags, shell,
+                            p2cread, p2cwrite,
+                            c2pread, c2pwrite,
+                            errread, errwrite)
+            else:
+                def _execute_child(self, args, executable, preexec_fn, close_fds,
+                            cwd, env, universal_newlines, startupinfo,
+                            creationflags, shell,
+                            p2cread, p2cwrite,
+                            c2pread, c2pwrite,
+                            errread, errwrite):
+                    return self._execute_child_compat(args, executable, preexec_fn, close_fds,
+                            cwd, env, universal_newlines, startupinfo,
+                            creationflags, shell,
+                            p2cread, p2cwrite,
+                            c2pread, c2pwrite,
+                            errread, errwrite)
         else:
             def _execute_child(self, args, executable, preexec_fn, close_fds,
                                pass_fds,
