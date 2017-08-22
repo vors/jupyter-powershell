@@ -1,3 +1,10 @@
+# Alternative kernel
+
+There is an alternative kernel that should support both powershell core and powershell full.
+Give it a try! https://github.com/Jaykul/Jupyter-PowerShell
+
+----------------------
+
 # jupyter-powershell
 
 PowerShell language kernel for Jupyter.
