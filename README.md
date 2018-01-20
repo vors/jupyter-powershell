@@ -5,17 +5,24 @@ Works on Windows, Linux and MacOS.
 
 ## Install kernel 
 
-```powershell
+```
 pip install powershell_kernel
 python -m powershell_kernel.install
 ```
 
-## Run
-
-Run from this folder to allow python load all the modules
+This command will install the kernel with Full PowerShell on Windows and Core on non-Windows.
+You can also specify command (i.e. if you want to use powershell Core on Windows).
 
 ```
-PS C:\dev\> jupyter notebook
+python -m powershell_kernel.install --powershell-command pwsh
+```
+
+## Run
+
+Run jupyter and you will see new kernel available!
+
+```
+jupyter notebook
 ```
 
 ## Aknowledgement
