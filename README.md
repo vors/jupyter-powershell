@@ -6,6 +6,7 @@ Works on Windows, Linux and MacOS.
 ## Install kernel 
 
 ```powershell
+pip install powershell_kernel
 python -m powershell_kernel.install
 ```
 
