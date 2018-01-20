@@ -1,6 +1,6 @@
 from IPython.kernel.zmq.kernelbase import Kernel
 
-from os import unlink
+from os import unlink, environ
 
 import base64
 import imghdr
@@ -37,7 +37,9 @@ class PowerShellKernel(Kernel):
 
     def __init__(self, **kwargs):
         Kernel.__init__(self, **kwargs)
-        repl = powershell_repl.PowershellRepl('utf8', cmd=['powershell', '-noprofile', '-File', '-'])
+        # powershell_command env variable is set by the kernel to allow both powershell and pwsh
+        powershell_command = environ['powershell_command']
+        repl = powershell_repl.PowershellRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
         self.proxy = powershell_proxy.ReplProxy(repl)
 
     def do_execute(self, code, silent, store_history=True,

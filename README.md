@@ -1,18 +1,12 @@
-# Alternative kernel
-
-There is an alternative kernel that should support both powershell core and powershell full.
-Give it a try! https://github.com/Jaykul/Jupyter-PowerShell
-
-----------------------
-
 # jupyter-powershell
 
 PowerShell language kernel for Jupyter.
+Works on Windows, Linux and MacOS.
 
 ## Install kernel 
 
 ```powershell
-./install-kernel.ps1
+python -m powershell_kernel.install
 ```
 
 ## Run
@@ -20,7 +14,7 @@ PowerShell language kernel for Jupyter.
 Run from this folder to allow python load all the modules
 
 ```
-PS C:\dev\> jupyter notebook --kernel=powershell
+PS C:\dev\> jupyter notebook
 ```
 
 ## Aknowledgement
@@ -30,7 +24,8 @@ This is an early prototype, but I tried to avoid unnessesary dependencies.
 This kernel is heavily based on https://github.com/takluyver/bash_kernel (as jupyter kernel example) and 
 https://github.com/wuub/SublimeREPL for calling PowerShell repl from python.
 
-The former has complicated license, so here is a careful explanation of the used parts.
+`bash_kernel` has BSD 3-clause license.
+`SublimeREPL` has complicated license, so here is a careful explanation of the used parts.
 
 From https://github.com/wuub/SublimeREPL/blob/94e859eae3b9a665a818ff7e13e45edf303ef87b/LICENSE-LIB.txt
 
