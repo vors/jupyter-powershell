@@ -11,10 +11,9 @@ import urllib
 from . import powershell_repl, powershell_proxy
 from .util import get_powershell
 
-__version__ = '0.1'
+__version__ = '0.0.5'
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
-
 
 class PowerShellKernel(Kernel):
     implementation = 'powershell_kernel'
