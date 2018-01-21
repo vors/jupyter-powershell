@@ -22,22 +22,26 @@ import argparse
 
 from jupyter_client.kernelspec import KernelSpecManager
 from IPython.utils.tempdir import TemporaryDirectory
+from .util import get_powershell
 
 kernel_json = {
  "argv": [sys.executable, "-m", "powershell_kernel", "-f", "{connection_file}"],
  "display_name": "PowerShell",
  "language": "powershell",
- "env": {}  # powershell_command will be added here
 }
 
-def get_powershell():
-    # nt is a name for windows
-    return 'powershell' if os.name == 'nt' else 'pwsh'
-
 def install_my_kernel_spec(user=True, prefix=None, powershell_command=None):
-    if powershell_command is None:
-        powershell_command = get_powershell()
-    kernel_json['env'].update({'powershell_command' : powershell_command})
+    
+    if sys.version_info >= (3, 0): 
+        if powershell_command is None:
+            powershell_command = get_powershell()
+        kernel_json.update({'env': {'powershell_command' : powershell_command}})
+        print('Using powershell_command=%r', powershell_command)
+    else:
+        # python 2 cannot use env to pass values to the kernel
+        # https://github.com/vors/jupyter-powershell/issues/7
+        if powershell_command is not None:
+            print('Ignoring powershell_command on python2, jupyter will use default powershell_command=%r' % powershell_command)
 
     with TemporaryDirectory() as td:
         os.chmod(td, 0o755) # Starts off as 700, not user readable

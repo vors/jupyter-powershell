@@ -9,6 +9,7 @@ import signal
 import urllib
 
 from . import powershell_repl, powershell_proxy
+from .util import get_powershell
 
 __version__ = '0.1'
 
@@ -37,8 +38,15 @@ class PowerShellKernel(Kernel):
 
     def __init__(self, **kwargs):
         Kernel.__init__(self, **kwargs)
+        
         # powershell_command env variable is set by the kernel to allow both powershell and pwsh
-        powershell_command = environ['powershell_command']
+        # but on python2 we cannot pass it thru env variable, see https://github.com/vors/jupyter-powershell/issues/7
+        # TODO: can we pass it somehow differently and still provide user-picked value on python2?
+        try:
+            powershell_command = environ['powershell_command']
+        except AttributeError:
+            powershell_command = get_powershell()
+
         repl = powershell_repl.PowershellRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
         self.proxy = powershell_proxy.ReplProxy(repl)
 
@@ -57,3 +65,4 @@ class PowerShellKernel(Kernel):
         return {'status': 'ok', 'execution_count': self.execution_count,
                 'payload': [], 'user_expressions': {}}
 
+#
