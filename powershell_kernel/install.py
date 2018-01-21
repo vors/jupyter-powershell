@@ -36,7 +36,7 @@ def install_my_kernel_spec(user=True, prefix=None, powershell_command=None):
         if powershell_command is None:
             powershell_command = get_powershell()
         kernel_json.update({'env': {'powershell_command' : powershell_command}})
-        print('Using powershell_command=%r', powershell_command)
+        print('Using powershell_command=%r' % powershell_command)
     else:
         # python 2 cannot use env to pass values to the kernel
         # https://github.com/vors/jupyter-powershell/issues/7

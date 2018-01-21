@@ -44,7 +44,7 @@ class PowerShellKernel(Kernel):
         # TODO: can we pass it somehow differently and still provide user-picked value on python2?
         try:
             powershell_command = environ['powershell_command']
-        except AttributeError:
+        except:
             powershell_command = get_powershell()
 
         repl = powershell_repl.PowershellRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
@@ -64,5 +64,3 @@ class PowerShellKernel(Kernel):
 
         return {'status': 'ok', 'execution_count': self.execution_count,
                 'payload': [], 'user_expressions': {}}
-
-#
