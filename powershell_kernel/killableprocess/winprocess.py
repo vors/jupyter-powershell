@@ -37,6 +37,7 @@
 from ctypes import c_void_p, POINTER, sizeof, Structure, windll, WinError, WINFUNCTYPE
 from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, LPCWSTR, LPWSTR, UINT, WORD
 from .qijo import QueryInformationJobObject
+from sys import version_info
 
 LPVOID = c_void_p
 LPBYTE = POINTER(BYTE)
@@ -138,10 +139,15 @@ class EnvironmentBlock:
         if not dict:
             self._as_parameter_ = None
         else:
-            values = ["%s=%s" % (key, value)
-                      for (key, value) in dict.items()]
-            values.append("")
-            self._as_parameter_ = LPCWSTR("\0".join(values))
+            if version_info >= (3, 0):
+              # on python3 LPCWSTR("\0") errors with 'ValueError: embedded null character'
+              # TODO(python3): find a proper fix for that
+              self._as_parameter_ = None
+            else:
+              values = ["%s=%s" % (key, value)
+                        for (key, value) in dict.items()]
+              values.append("")
+              self._as_parameter_ = LPCWSTR("\0".join(values))
         
 # CreateProcess()
 

@@ -41,7 +41,7 @@ class PowerShellKernel(Kernel):
         
         # powershell_command env variable is set by the kernel to allow both powershell and pwsh
         # but on python2 we cannot pass it thru env variable, see https://github.com/vors/jupyter-powershell/issues/7
-        # TODO: can we pass it somehow differently and still provide user-picked value on python2?
+        # TODO(python2): can we pass it somehow differently and still provide user-picked value on python2?
         try:
             powershell_command = environ['powershell_command']
         except:

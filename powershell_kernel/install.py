@@ -40,6 +40,7 @@ def install_my_kernel_spec(user=True, prefix=None, powershell_command=None):
     else:
         # python 2 cannot use env to pass values to the kernel
         # https://github.com/vors/jupyter-powershell/issues/7
+        # TODO(python2): find a way to pass it
         if powershell_command is not None:
             print('Ignoring powershell_command on python2, jupyter will use default powershell_command=%r' % powershell_command)
 
