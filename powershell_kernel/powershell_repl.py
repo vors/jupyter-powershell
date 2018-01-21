@@ -35,8 +35,6 @@ class PowershellRepl(subprocess_repl.SubprocessRepl):
         self.got_output = True
         self.multiline = False
 
-        self.prompt()
-
     def read_bytes(self):
         # this is windows specific problem, that you cannot tell if there
         # are more bytes ready, so we read only 1 at a times
@@ -47,7 +45,6 @@ class PowershellRepl(subprocess_repl.SubprocessRepl):
         if result and not self.got_output:
             self.got_output = True
             self.multiline = False
-            self.prompt()
             # Don't return PREPENDER, read another input
             return self.read_bytes()
 
@@ -64,11 +61,6 @@ class PowershellRepl(subprocess_repl.SubprocessRepl):
 
     def do_write(self, bytes):
         super(PowershellRepl, self).write_bytes(bytes)
-
-    def prompt(self):
-        """ Sends command to get prompt """
-        #self.do_write(b'Write-Host ("PS " + (gl).Path + "> ") -NoNewline\n')
-        pass
 
     def prepend(self):
         """ Command to prepend every output with special mark to detect multiline mode """
