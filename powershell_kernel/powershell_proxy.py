@@ -48,7 +48,11 @@ class ReplProxy(object):
         return out       
 
     def send_input(self, input):
-        self._repl.write(input + '\n')        
+        self._repl.write(input + '\n')
+        # for multiline statements we should send 1 extra new line
+        # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
+        if '\n' in input:
+            self._repl.write('\n')
 
     def skip_preambula(self):
         try:
