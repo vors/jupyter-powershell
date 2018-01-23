@@ -131,7 +131,7 @@ def QueryInformationJobObject(hJob, JobObjectInfoClass):
     return SubscriptableReadOnlyStruct(jobinfo.info)
 
 def test_qijo():
-    from .killableprocess import Popen
+    from powershell_kernel.killableprocess.killableprocess import Popen
 
     popen = Popen('c:\\windows\\notepad.exe')
 

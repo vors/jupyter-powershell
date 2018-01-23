@@ -4,7 +4,7 @@
 # See LICENSE.txt for details.
 import os
 import re
-from . import subprocess_repl
+from powershell_kernel import subprocess_repl
 
 class PowershellRepl(subprocess_repl.SubprocessRepl):
     TYPE = "powershell"

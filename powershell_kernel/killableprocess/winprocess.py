@@ -36,7 +36,7 @@
 
 from ctypes import c_void_p, POINTER, sizeof, Structure, windll, WinError, WINFUNCTYPE
 from ctypes.wintypes import BOOL, BYTE, DWORD, HANDLE, LPCWSTR, LPWSTR, UINT, WORD
-from .qijo import QueryInformationJobObject
+from powershell_kernel.killableprocess.qijo import QueryInformationJobObject
 from sys import version_info
 
 LPVOID = c_void_p

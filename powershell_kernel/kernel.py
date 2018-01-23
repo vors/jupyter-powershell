@@ -8,8 +8,8 @@ import re
 import signal
 import urllib
 
-from . import powershell_repl, powershell_proxy
-from .util import get_powershell
+from powershell_kernel import powershell_repl, powershell_proxy
+from powershell_kernel.util import get_powershell
 
 __version__ = '0.0.5'
 

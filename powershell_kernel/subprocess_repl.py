@@ -7,9 +7,9 @@ from __future__ import absolute_import, unicode_literals, print_function, divisi
 import subprocess
 import os
 import sys
-from .repl import Repl
+from powershell_kernel.repl import Repl
 import signal
-from .killableprocess import Popen
+from powershell_kernel.killableprocess import Popen
 
 PY3 = sys.version_info[0] == 3
 
@@ -161,7 +161,7 @@ class SubprocessRepl(Repl):
     def startupinfo(self, settings):
         startupinfo = None
         if os.name == 'nt':
-            from .killableprocess import STARTUPINFO, STARTF_USESHOWWINDOW
+            from killableprocess import STARTUPINFO, STARTF_USESHOWWINDOW
             startupinfo = STARTUPINFO()
             startupinfo.dwFlags |= STARTF_USESHOWWINDOW
             startupinfo.wShowWindow |= 1 # SW_SHOWNORMAL

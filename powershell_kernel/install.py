@@ -22,7 +22,7 @@ import argparse
 
 from jupyter_client.kernelspec import KernelSpecManager
 from IPython.utils.tempdir import TemporaryDirectory
-from .util import get_powershell
+from powershell_kernel.util import get_powershell
 
 kernel_json = {
  "argv": [sys.executable, "-m", "powershell_kernel", "-f", "{connection_file}"],
