@@ -43,8 +43,7 @@ This means that, although the parts of SublimeREPL that I (wuub) wrote are publi
 
 I'd like to avoid GPLv2 dependencies (and I don't need any of that code), so I want to list all used code (BSD/MIT):
 
-* killable process version is borrowed from SublimeRepl. It's originally licensed under MIT by Peter Astrand, I'm using wuub's version.
-* `repl.py`, `subprocess_repl.py`, `powershell_repl.py` wrote by wuub, licensed under BSD/MIT.
+* `repl.py`, `subprocess_repl.py` wrote by wuub, licensed under BSD/MIT.
 
 
 ### LICENSE

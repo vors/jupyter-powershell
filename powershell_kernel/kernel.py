@@ -8,7 +8,7 @@ import re
 import signal
 import urllib
 
-from powershell_kernel import powershell_repl, powershell_proxy
+from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
 
 __version__ = '0.0.5'
@@ -46,7 +46,7 @@ class PowerShellKernel(Kernel):
         except:
             powershell_command = get_powershell()
 
-        repl = powershell_repl.PowershellRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
+        repl = subprocess_repl.SubprocessRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
         self.proxy = powershell_proxy.ReplProxy(repl)
 
     def do_execute(self, code, silent, store_history=True,

@@ -9,5 +9,4 @@ setup(
   url = 'https://github.com/vors/jupyter-powershell',
   keywords = ['ikernel', 'jupyter', 'powershell', 'pwsh'],
   classifiers = [],
-  package_data={'powershell_kernel': ['*', 'killableprocess/*.py']},
 )

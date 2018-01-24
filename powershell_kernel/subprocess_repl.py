@@ -7,9 +7,10 @@ from __future__ import absolute_import, unicode_literals, print_function, divisi
 import subprocess
 import os
 import sys
+import re
 from powershell_kernel.repl import Repl
 import signal
-from powershell_kernel.killableprocess import Popen
+from subprocess import Popen
 
 PY3 = sys.version_info[0] == 3
 
@@ -20,165 +21,29 @@ if os.name == 'posix':
 else:
     POSIX = False
 
-
-class Unsupported(Exception):
-    def __init__(self, msgs):
-        super(Unsupported, self).__init__()
-        self.msgs = msgs
-
-    def __repr__(self):
-        return "\n".join(self.msgs)
-
-
-def win_find_executable(executable, env):
-    """Explicetely looks for executable in env["PATH"]"""
-    if os.path.dirname(executable):
-        return executable # executable is already absolute filepath
-    path = env.get("PATH", "")
-    pathext = env.get("PATHEXT") or ".EXE"
-    dirs = path.split(os.path.pathsep)
-    (base, ext) = os.path.splitext(executable)
-    if ext:
-        extensions = [ext]
-    else:
-        extensions = pathext.split(os.path.pathsep)
-    for directory in dirs:
-        for extension in extensions:
-            filepath = os.path.join(directory, base + extension)
-            if os.path.exists(filepath):
-                return filepath
-    return None
-
-
 class SubprocessRepl(Repl):
     TYPE = "subprocess"
 
-    def __init__(self, encoding, cmd=None, env=None, cwd=None, extend_env=None, soft_quit="", autocomplete_server=False, **kwds):
+    def __init__(self, encoding, cmd=None, **kwds):
+        if not encoding:
+            # Detect encoding
+            chcp = os.popen('chcp')
+            chcp_encoding = re.match(r'[^\d]+(\d+)', chcp.read())
+            if not chcp_encoding:
+                raise LookupError("Can't detect encoding from chcp")
+            encoding = "cp" + chcp_encoding.groups()[0]
+            print(encoding)
+        
         super(SubprocessRepl, self).__init__(encoding, **kwds)
         settings = None
 
-        if cmd[0] == "[unsupported]":
-            raise Unsupported(cmd[1:])
-
-        self._autocomplete_server = None
-
-        env = self.env(env, extend_env, settings)
-        env[b"SUBLIMEREPL_AC_PORT"] = str(self.autocomplete_server_port()).encode("utf-8")
-
-        if PY3:
-            strings_env = {}
-            for k, v in env.items():
-                strings_env[k.decode("utf-8")] = v.decode("utf-8")
-            env = strings_env
-
-        self._cmd = self.cmd(cmd, env)
-        self._soft_quit = soft_quit
         self._killed = False
-        self.popen = Popen(
-                        self._cmd,
-                        startupinfo=self.startupinfo(settings),
-                        creationflags=self.creationflags(settings),
-                        bufsize=1,
-                        cwd=self.cwd(cwd, settings),
-                        env=env,
-                        stderr=subprocess.STDOUT,
-                        stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE)
+        self.popen = Popen(cmd, bufsize=1,
+            stderr=subprocess.STDOUT, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
         if POSIX:
             flags = fcntl.fcntl(self.popen.stdout, fcntl.F_GETFL)
             fcntl.fcntl(self.popen.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
-
-    def autocomplete_server_port(self):
-        if not self._autocomplete_server:
-            return None
-        return self._autocomplete_server.port()
-
-    def autocomplete_available(self):
-        if not self._autocomplete_server:
-            return False
-        return self._autocomplete_server.connected()
-
-    def autocomplete_completions(self, whole_line, pos_in_line, prefix, whole_prefix, locations):
-        return self._autocomplete_server.complete(
-            whole_line=whole_line,
-            pos_in_line=pos_in_line,
-            prefix=prefix,
-            whole_prefix=whole_prefix,
-            locations=locations,
-        )
-
-    def cmd(self, cmd, env):
-        """On Linux and OSX just returns cmd, on windows it has to find
-           executable in env because of this: http://bugs.python.org/issue8557"""
-        if os.name != "nt":
-            return cmd
-        if isinstance(cmd, str):
-            _cmd = [cmd]
-        else:
-            _cmd = cmd
-        executable = win_find_executable(_cmd[0], env)
-        if executable:
-            _cmd[0] = executable
-        return _cmd
-
-    def cwd(self, cwd, settings):
-        if cwd and os.path.exists(cwd):
-            return cwd
-        return None
-
-    def getenv(self, settings):
-        """Tries to get most appropriate environent, on windows
-           it's os.environ.copy, but on other system's we'll
-           try get values from login shell"""
-        # Fallback to environ.copy() if not on POSIX or sane getenv failed
-        return os.environ.copy()
-
-    def env(self, env, extend_env, settings):
-        updated_env = env if env else self.getenv(settings)
-        if extend_env:
-            updated_env.update(self.interpolate_extend_env(updated_env, extend_env))
-
-        bytes_env = {}
-        for k, v in list(updated_env.items()):
-            try:
-                enc_k = self.encoder(str(k))[0]
-                enc_v = self.encoder(str(v))[0]
-            except UnicodeDecodeError:
-                continue #f*** it, we'll do it live
-            else:
-                bytes_env[enc_k] = enc_v
-        return bytes_env
-
-    def interpolate_extend_env(self, env, extend_env):
-        """Interpolates (subst) values in extend_env.
-           Mostly for path manipulation"""
-        new_env = {}
-        for key, val in list(extend_env.items()):
-            new_env[key] = str(val).format(**env)
-        return new_env
-
-    def startupinfo(self, settings):
-        startupinfo = None
-        if os.name == 'nt':
-            from killableprocess import STARTUPINFO, STARTF_USESHOWWINDOW
-            startupinfo = STARTUPINFO()
-            startupinfo.dwFlags |= STARTF_USESHOWWINDOW
-            startupinfo.wShowWindow |= 1 # SW_SHOWNORMAL
-        return startupinfo
-
-    def creationflags(self, settings):
-        creationflags = 0
-        if os.name == "nt":
-            creationflags = 0x8000000 # CREATE_NO_WINDOW
-        return creationflags
-
-    def name(self):
-        if self.external_id:
-            return self.external_id
-        if isinstance(self._cmd, str):
-            return self._cmd
-        return " ".join([str(x) for x in self._cmd])
 
     def is_alive(self):
         return self.popen.poll() is None
@@ -208,12 +73,7 @@ class SubprocessRepl(Repl):
         si = self.popen.stdin
         si.write(bytes)
         si.flush()
-
-    def kill(self):
-        self._killed = True
-        self.write(self._soft_quit)
-        self.popen.kill()
-
+ 
     def available_signals(self):
         signals = {}
         for k, v in list(signal.__dict__.items()):

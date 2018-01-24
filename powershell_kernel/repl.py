@@ -75,10 +75,6 @@ class Repl(object):
            Can block!!!"""
         raise NotImplementedError
 
-    def kill(self):
-        """Kills the underlying repl"""
-        raise NotImplementedError
-
     def write(self, command):
         """Encodes and evaluates a given command"""
         (bytes, how_many) = self.encoder(command)
