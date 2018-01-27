@@ -2,7 +2,7 @@ from distutils.core import setup
 setup(
   name = 'powershell_kernel',
   packages = ['powershell_kernel'],
-  version = '0.0.5',
+  version = '0.0.6',
   description = 'PowerShell language kernel for Jupyter',
   author = 'Sergei Vorobev',
   author_email = 'xvorsx@gmail.com',
