@@ -95,6 +95,14 @@ class ReplProxy(object):
             return
         self.output += packet
 
+        if self.output_prefix_stripped and self.output == '>> ':
+            # this is most likely incomplete input problem
+            self.output = ("Incomplete input! PowerShell process would not be able to continue.\n"
+            "Due to the implementation limitation, you need to manually restart PowerShell Language Kernel.\n"
+            "Kernal -> Restart\n"
+            "For details, see https://github.com/vors/jupyter-powershell/issues/9")
+            self.stop_flag = True
+
         if not self.output_prefix_stripped and len(self.output) >= self.expected_output_len:
             if self.output[:self.expected_output_len] != self.expected_output_prefix:
                 print("Unexpected prefix: %r : Expected %r" % (
