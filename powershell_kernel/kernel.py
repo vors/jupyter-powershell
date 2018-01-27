@@ -1,4 +1,4 @@
-from IPython.kernel.zmq.kernelbase import Kernel
+from ipykernel.kernelbase import Kernel
 
 from os import unlink, environ
 
