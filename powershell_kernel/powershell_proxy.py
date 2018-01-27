@@ -29,14 +29,14 @@ class ReplProxy(object):
         self._repl_reader = ReplReader(repl)
         # this is a hack to detect when we stop processing this input
         self.send_input('function prompt() {"^"}')
-        self.skip_preambula()
 
-        self.timer = Timer(0.1, self.update_view_loop)
-        self.timer.start()
         self.stop_flag = False
         self.output = ''
-        # clean-up output, it really should be a part of skip_preambula
+        self.timer = Timer(0.1, self.update_view_loop)
+        self.timer.start()
+        # get preambula and eveluation of the prompt
         self.get_output()
+
         self.output_prefix_stripped = True
         self.expected_output_prefix = ''
         self.expected_output_len = 0
@@ -63,15 +63,6 @@ class ReplProxy(object):
         self.output_prefix_stripped = False
 
         self._repl.write(input + '\n')
-
-    def skip_preambula(self):
-        try:
-            while True:
-                packet = self._repl_reader.queue.get_nowait()
-                if packet is None:
-                    return False                
-        except queue.Empty:
-            return True
 
     def handle_repl_output(self):
         """Returns new data from Repl and bool indicating if Repl is still
