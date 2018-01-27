@@ -10,8 +10,9 @@ import urllib
 
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
+import powershell_kernel
 
-__version__ = '0.0.7'
+__version__ = powershell_kernel.__version__
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
 
