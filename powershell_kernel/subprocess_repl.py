@@ -8,9 +8,9 @@ import subprocess
 import os
 import sys
 import re
-from powershell_kernel.repl import Repl
 import signal
 from subprocess import Popen
+from codecs import getencoder, getincrementaldecoder
 
 PY3 = sys.version_info[0] == 3
 
@@ -21,26 +21,12 @@ if os.name == 'posix':
 else:
     POSIX = False
 
-class SubprocessRepl(Repl):
-    TYPE = "subprocess"
-
-    def __init__(self, encoding, cmd=None, **kwds):
-        if not encoding:
-            # Detect encoding
-            chcp = os.popen('chcp')
-            chcp_encoding = re.match(r'[^\d]+(\d+)', chcp.read())
-            if not chcp_encoding:
-                raise LookupError("Can't detect encoding from chcp")
-            encoding = "cp" + chcp_encoding.groups()[0]
-            print(encoding)
-        
-        super(SubprocessRepl, self).__init__(encoding, **kwds)
-        settings = None
-
-        self._killed = False
+class SubprocessRepl(object):
+    def __init__(self, cmd):
+        self.encoder = getencoder('utf8')
+        self.decoder = getincrementaldecoder('utf8')()
         self.popen = Popen(cmd, bufsize=1,
             stderr=subprocess.STDOUT, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
         if POSIX:
             flags = fcntl.fcntl(self.popen.stdout, fcntl.F_GETFL)
             fcntl.fcntl(self.popen.stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
@@ -67,24 +53,26 @@ class SubprocessRepl(Repl):
                     continue
                 return byte
 
-
-
-    def write_bytes(self, bytes):
+    def write(self, command):
+        (bytes, how_many) = self.encoder(command)
         si = self.popen.stdin
         si.write(bytes)
         si.flush()
- 
-    def available_signals(self):
-        signals = {}
-        for k, v in list(signal.__dict__.items()):
-            if not k.startswith("SIG"):
-                continue
-            signals[k] = v
-        return signals
+    
+    def reset_decoder(self):
+        self.decoder = getincrementaldecoder('utf8')()
 
-    def send_signal(self, sig):
-        if sig == signal.SIGTERM:
-            self._killed = True
-        if self.is_alive():
-            self.popen.send_signal(sig)
-
+    def read(self):
+        """Reads at least one decoded char of output"""
+        while True:
+            bs = self.read_bytes()
+            if not bs:
+                return None
+            try:
+                output = self.decoder.decode(bs)
+            except Exception as e:
+                output = "■"
+                self.reset_decoder()
+            if output:
+                return output
+  

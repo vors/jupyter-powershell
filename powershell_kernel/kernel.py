@@ -46,7 +46,7 @@ class PowerShellKernel(Kernel):
         except:
             powershell_command = get_powershell()
 
-        repl = subprocess_repl.SubprocessRepl('utf8', cmd=[powershell_command, '-noprofile', '-File', '-'])
+        repl = subprocess_repl.SubprocessRepl([powershell_command, '-noprofile', '-File', '-'])
         self.proxy = powershell_proxy.ReplProxy(repl)
 
     def do_execute(self, code, silent, store_history=True,
