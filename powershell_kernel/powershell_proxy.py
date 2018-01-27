@@ -85,7 +85,7 @@ class ReplProxy(object):
             self.timer = Timer(0.1, self.update_view_loop)
             self.timer.start()
         else:
-            write("\n***Repl Killed***\n""")
+            self.write("\n***Repl Killed***\n""")
 
     def write(self, packet):
         # this is a hack to detect when we stop processing this input
@@ -94,5 +94,4 @@ class ReplProxy(object):
             return
         self.output += packet
         self.write_count += 1
-        #print(packet, end="", flush=True)
 
