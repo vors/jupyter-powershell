@@ -33,11 +33,14 @@ class ReplProxy(object):
 
         self.timer = Timer(0.1, self.update_view_loop)
         self.timer.start()
-        self.write_count = 0
         self.stop_flag = False
         self.output = ''
         # clean-up output, it really should be a part of skip_preambula
         self.get_output()
+        self.output_prefix_stripped = True
+        self.expected_output_prefix = ''
+        self.expected_output_len = 0
+
 
     def get_output(self):
         while not self.stop_flag:
@@ -48,11 +51,18 @@ class ReplProxy(object):
         return out       
 
     def send_input(self, input):
-        self._repl.write(input + '\n')
+        # TODO: we should block here until we return output for previous command, should we?
+
         # for multiline statements we should send 1 extra new line
         # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
         if '\n' in input:
-            self._repl.write('\n')
+            input += '\n'
+
+        self.expected_output_prefix = input.replace('\n', '\n>> ') + '\n'
+        self.expected_output_len = len(self.expected_output_prefix)
+        self.output_prefix_stripped = False
+
+        self._repl.write(input + '\n')
 
     def skip_preambula(self):
         try:
@@ -93,5 +103,12 @@ class ReplProxy(object):
             self.stop_flag = True
             return
         self.output += packet
-        self.write_count += 1
 
+        if not self.output_prefix_stripped and len(self.output) >= self.expected_output_len:
+            if self.output[:self.expected_output_len] != self.expected_output_prefix:
+                print("Unexpected prefix: %r : Expected %r" % (
+                    self.output[:self.expected_output_len], self.expected_output_prefix
+                ))
+            else:
+                self.output_prefix_stripped = True
+                self.output = self.output[self.expected_output_len:]
