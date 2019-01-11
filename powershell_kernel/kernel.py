@@ -1,3 +1,5 @@
+from subprocess import check_output
+
 from ipykernel.kernelbase import Kernel
 
 from os import unlink, environ
@@ -7,6 +9,8 @@ import imghdr
 import re
 import signal
 import urllib
+
+from traitlets import default, Unicode
 
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
@@ -24,11 +28,14 @@ class PowerShellKernel(Kernel):
         m = version_pat.search(self.banner)
         return m.group(1)
 
-    _banner = None
+    # _banner = None
+    config_file_name = Unicode()
 
-    @property
-    def banner(self):
-        return self._banner
+    banner = Unicode()
+    @default('banner')
+    def _banner_default(self):
+        return check_output(['powershell', '$PSVersionTable.PSVersion']).decode('utf-8')
+        # return self._banner
 
     language_info = {'name': 'powershell',
                      'codemirror_mode': 'shell',
