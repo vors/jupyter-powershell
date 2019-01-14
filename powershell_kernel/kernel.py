@@ -19,6 +19,7 @@ __version__ = '0.0.7'
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
 
+
 class PowerShellKernel(Kernel):
     implementation = 'powershell_kernel'
     implementation_version = __version__
@@ -28,10 +29,8 @@ class PowerShellKernel(Kernel):
         m = version_pat.search(self.banner)
         return m.group(1)
 
-    # _banner = None
-    config_file_name = Unicode()
-
     banner = Unicode()
+
     @default('banner')
     def _banner_default(self):
         return check_output(['powershell', '$PSVersionTable.PSVersion']).decode('utf-8')
@@ -44,7 +43,7 @@ class PowerShellKernel(Kernel):
 
     def __init__(self, **kwargs):
         Kernel.__init__(self, **kwargs)
-        
+
         # powershell_command env variable is set by the kernel to allow both powershell and pwsh
         # but on python2 we cannot pass it thru env variable, see https://github.com/vors/jupyter-powershell/issues/7
         # TODO(python2): can we pass it somehow differently and still provide user-picked value on python2?
@@ -61,7 +60,7 @@ class PowerShellKernel(Kernel):
         if not code.strip():
             return {'status': 'ok', 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
-        
+
         self.proxy.send_input(code)
         output = self.proxy.get_output()
 
