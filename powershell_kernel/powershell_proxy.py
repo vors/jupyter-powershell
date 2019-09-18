@@ -26,7 +26,6 @@ class ReplReader(threading.Thread):
 class ReplProxy(object):
     def __init__(self, repl):
         self._repl = repl
-        self.expected_carets = 1
         self._repl_reader = ReplReader(repl)
         # this is a hack to detect when we stop processing this input
         self.send_input('function prompt() {"^"}')
@@ -58,7 +57,6 @@ class ReplProxy(object):
         # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
         if '\n' in input:
             input += '\n'
-            self.expected_carets = input.count('\n')
 
         self.expected_output_prefix = input.replace('\n', '\n>> ') + '\n'
         self.expected_output_len = len(self.expected_output_prefix)
@@ -93,9 +91,7 @@ class ReplProxy(object):
     def write(self, packet):
         # this is a hack to detect when we stop processing this input
         if packet == '^':
-            self.expected_carets -= 1
-            if self.expected_carets < 1:
-                self.stop_flag = True
+            self.stop_flag = True
             return
         self.output += packet
 
