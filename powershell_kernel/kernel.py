@@ -55,7 +55,7 @@ class PowerShellKernel(Kernel):
             return {'status': 'ok', 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
         
-        self.proxy.send_input(code)
+        self.proxy.send_input('& { ' + code + ' }')
         output = self.proxy.get_output()
 
         message = {'name': 'stdout', 'text': output}
