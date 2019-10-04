@@ -11,7 +11,7 @@ import urllib
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
 
-__version__ = '0.0.7'
+__version__ = '0.1.0'
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
 
@@ -55,7 +55,7 @@ class PowerShellKernel(Kernel):
             return {'status': 'ok', 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
         
-        self.proxy.send_input('& { ' + code + ' }')
+        self.proxy.send_input('. { ' + code + ' }')
         output = self.proxy.get_output()
 
         message = {'name': 'stdout', 'text': output}
