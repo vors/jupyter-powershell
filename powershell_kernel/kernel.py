@@ -7,6 +7,8 @@ import imghdr
 import re
 import signal
 import urllib
+import sys
+import traceback
 
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
@@ -35,9 +37,9 @@ class PowerShellKernel(Kernel):
                      'mimetype': 'text/x-sh',
                      'file_extension': '.ps1'}
 
-    def __init__(self, **kwargs):
-        Kernel.__init__(self, **kwargs)
-        
+    proxy = None
+
+    def __createProxy(self):
         # powershell_command env variable is set by the kernel to allow both powershell and pwsh
         # but on python2 we cannot pass it thru env variable, see https://github.com/vors/jupyter-powershell/issues/7
         # TODO(python2): can we pass it somehow differently and still provide user-picked value on python2?
@@ -51,15 +53,30 @@ class PowerShellKernel(Kernel):
 
     def do_execute(self, code, silent, store_history=True,
                    user_expressions=None, allow_stdin=False):
-        if not code.strip():
+        try:
+            if not code.strip():
+                return {'status': 'ok', 'execution_count': self.execution_count,
+                        'payload': [], 'user_expressions': {}}
+
+            if not self.proxy:
+                self.__createProxy()
+
+            self.proxy.send_input('. { ' + code + ' }')
+            output = self.proxy.get_output()
+
+            message = {'name': 'stdout', 'text': output}
+            self.send_response(self.iopub_socket, 'stream', message)
+
             return {'status': 'ok', 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
-        
-        self.proxy.send_input('. { ' + code + ' }')
-        output = self.proxy.get_output()
 
-        message = {'name': 'stdout', 'text': output}
-        self.send_response(self.iopub_socket, 'stream', message)
-
-        return {'status': 'ok', 'execution_count': self.execution_count,
-                'payload': [], 'user_expressions': {}}
+        except Exception:
+            excInfo = sys.exc_info()
+            message = {
+                'ename': str(excInfo[0].__name__),
+                'evalue': str(excInfo[1]),
+                'traceback': [traceback.format_exc()]
+            }
+            self.send_response(self.iopub_socket, 'error', message)
+            message['status'] = 'error'
+            return message
