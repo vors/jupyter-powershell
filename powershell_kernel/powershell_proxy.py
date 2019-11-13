@@ -45,6 +45,9 @@ class ReplProxy(object):
     def send_input(self, input):
         self.runCmdLock.acquire()
         try:
+            self.output = ''
+            self.stop_flag = False
+
             # for multiline statements we should send 1 extra new line
             # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
             input = '. {\n' + input + '\n}'
@@ -60,7 +63,6 @@ class ReplProxy(object):
             while not self.stop_flag:
                 sleep(0.05)
             out = self.output
-            self.output = ''
             self.stop_flag = False
             return out
         finally:
