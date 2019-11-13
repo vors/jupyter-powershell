@@ -61,8 +61,7 @@ class PowerShellKernel(Kernel):
             if not self.proxy:
                 self.__createProxy()
 
-            self.proxy.send_input('. { ' + code + ' }')
-            output = self.proxy.get_output()
+            output = self.proxy.send_input(code)
 
             message = {'name': 'stdout', 'text': output}
             self.send_response(self.iopub_socket, 'stream', message)

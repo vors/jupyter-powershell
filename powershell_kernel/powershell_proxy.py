@@ -3,7 +3,7 @@ try:
     import queue
 except ImportError:
     import Queue as queue
-from threading import Timer
+from threading import Timer, Lock
 from time import sleep
 
 class ReplReader(threading.Thread):
@@ -25,44 +25,46 @@ class ReplReader(threading.Thread):
 
 class ReplProxy(object):
     def __init__(self, repl):
+        self.runCmdLock = Lock()
+
         self._repl = repl
         self._repl_reader = ReplReader(repl)
-        # this is a hack to detect when we stop processing this input
-        self.send_input('function prompt() {"^"}')
 
         self.stop_flag = False
         self.output = ''
         self.timer = Timer(0.1, self.update_view_loop)
         self.timer.start()
-        # get preambula and eveluation of the prompt
-        self.get_output()
 
         self.output_prefix_stripped = True
         self.expected_output_prefix = ''
         self.expected_output_len = 0
 
-
-    def get_output(self):
-        while not self.stop_flag:
-            sleep(0.05)
-        out = self.output
-        self.output = ''
-        self.stop_flag = False 
-        return out       
+        # this is a hack to detect when we stop processing this input
+        self.send_input('function prompt() {"^"}')
 
     def send_input(self, input):
-        # TODO: we should block here until we return output for previous command, should we?
+        self.runCmdLock.acquire()
+        try:
+            # for multiline statements we should send 1 extra new line
+            # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
+            input = '. {\n' + input + '\n}'
+            if '\n' in input:
+                input += '\n'
 
-        # for multiline statements we should send 1 extra new line
-        # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
-        if '\n' in input:
-            input += '\n'
+            self.expected_output_prefix = input.replace('\n', '\n>> ') + '\n'
+            self.expected_output_len = len(self.expected_output_prefix)
+            self.output_prefix_stripped = False
 
-        self.expected_output_prefix = input.replace('\n', '\n>> ') + '\n'
-        self.expected_output_len = len(self.expected_output_prefix)
-        self.output_prefix_stripped = False
+            self._repl.write(input + '\n')
 
-        self._repl.write(input + '\n')
+            while not self.stop_flag:
+                sleep(0.05)
+            out = self.output
+            self.output = ''
+            self.stop_flag = False
+            return out
+        finally:
+            self.runCmdLock.release()
 
     def handle_repl_output(self):
         """Returns new data from Repl and bool indicating if Repl is still
