@@ -48,11 +48,11 @@ class ReplProxy(object):
             self.output = ''
             self.stop_flag = False
 
-            # for multiline statements we should send 1 extra new line
+            # Append newline to the original input to handle single line comments on the last line
+            #
+            # Also, for multiline statements we should send 1 extra new line at the end
             # https://stackoverflow.com/questions/13229066/how-to-end-a-multi-line-command-in-powershell
-            input = '. {\n' + input + '\n}'
-            if '\n' in input:
-                input += '\n'
+            input = '. {\n' + input + '\n}\n'
 
             self.expected_output_prefix = input.replace('\n', '\n>> ') + '\n'
             self.expected_output_len = len(self.expected_output_prefix)
