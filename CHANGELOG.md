@@ -2,7 +2,8 @@ CHANGELOG
 -------------
 ## 0.1.3
 
-* Fix various problems where cells would capture output incorrectly (especially in cases where comments existed at the end of a cell)
+* Fix various problems where cells would capture output incorrectly
+* Fix a problem where comments at the end of a cell could cause the kernel to hang indefinitely
 
 ## 0.1.2
 
