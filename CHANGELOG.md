@@ -1,5 +1,9 @@
 CHANGELOG
 -------------
+## 0.1.3
+
+* Fix various problems where cells would capture output incorrectly (especially in cases where comments existed at the end of a cell)
+
 ## 0.1.2
 
 * Fix a problem where kernel hangs when asking for user input (#23)

@@ -13,7 +13,7 @@ import traceback
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
 
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
 
