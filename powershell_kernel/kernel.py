@@ -62,11 +62,16 @@ class PowerShellKernel(Kernel):
                 self.__createProxy()
 
             output = self.proxy.run_command(code)
+            return_code = self.proxy.run_command('$?')
+
+            status = 'error'
+            if 'True' in return_code:
+                status = 'ok'
 
             message = {'name': 'stdout', 'text': output}
             self.send_response(self.iopub_socket, 'stream', message)
 
-            return {'status': 'ok', 'execution_count': self.execution_count,
+            return {'status': status, 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
 
         except Exception:
