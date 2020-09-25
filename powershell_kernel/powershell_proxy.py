@@ -40,8 +40,10 @@ class ReplProxy(object):
         self.expected_output_len = 0
 
         # this is a hack to detect when we stop processing this input
-        self.run_command('function prompt() {"^"}')
-
+        # Run command is enumerable as a result we need to pass in prompt properly
+        for temp in self.run_command('function prompt() {"^"}'):
+            continue
+        
     def run_command(self, input):
         self.runCmdLock.acquire()
         try:
@@ -58,11 +60,18 @@ class ReplProxy(object):
             self.expected_output_len = len(self.expected_output_prefix)
             self.output_prefix_stripped = False
 
-            self._repl.write(input + '\n')
-
+            self._repl.write(input + '\n') 
+            
             while not self.stop_flag:
                 sleep(0.05)
-            return self.output
+                # Allows for interactive streaming of output
+                if not self.stop_flag:
+                    temp_string = self.output
+                    self.output = ''
+                    if temp_string != '':
+                        yield temp_string
+            yield self.output
+
         finally:
             self.runCmdLock.release()
 
