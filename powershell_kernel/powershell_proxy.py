@@ -60,8 +60,7 @@ class ReplProxy(object):
             self.expected_output_len = len(self.expected_output_prefix)
             self.output_prefix_stripped = False
 
-            self._repl.write(input + '\n') 
-            
+            self._repl.write(input + '\n')
             while not self.stop_flag:
                 sleep(0.05)
                 # Allows for interactive streaming of output
