@@ -39,8 +39,8 @@ class ReplProxy(object):
         self.expected_output_prefix = ''
         self.expected_output_len = 0
 
+        # Returns a generator that yields string messages as they are returned from powershell via stdout
         # this is a hack to detect when we stop processing this input
-        # Run command is enumerable as a result we need to pass in prompt properly
         for temp in self.run_command('function prompt() {"^"}'):
             continue
         
@@ -66,10 +66,10 @@ class ReplProxy(object):
                 sleep(0.05)
                 # Allows for interactive streaming of output
                 if not self.stop_flag:
-                    temp_string = self.output
+                    powershell_message = self.output
                     self.output = ''
-                    if temp_string != '':
-                        yield temp_string
+                    if powershell_message != '':
+                        yield powershell_message
             yield self.output
 
         finally:
@@ -101,8 +101,9 @@ class ReplProxy(object):
 
     def write(self, packet):
         # this is a hack to detect when we stop processing this input
-        if packet == '^':
+        if packet.endswith('^'):
             self.stop_flag = True
+            self.output += packet[:-1]
             return
         self.output += packet
 
