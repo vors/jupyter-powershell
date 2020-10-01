@@ -33,6 +33,7 @@ class PowerShellKernel(Kernel):
         return self._banner
 
     language_info = {'name': 'powershell',
+                     'version': "0.1.3",
                      'codemirror_mode': 'shell',
                      'mimetype': 'text/x-sh',
                      'file_extension': '.ps1'}
