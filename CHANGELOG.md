@@ -1,5 +1,10 @@
 CHANGELOG
 -------------
+## 0.1.4
+
+* Interactive Streaming Output Support
+* Fix various problems where cells with streaming long outputs would hang indefinitely 
+
 ## 0.1.3
 
 * Fix various problems where cells would capture output incorrectly
