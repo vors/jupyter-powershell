@@ -33,6 +33,7 @@ class PowerShellKernel(Kernel):
         return self._banner
 
     language_info = {'name': 'powershell',
+                     'version': "0.1.3",
                      'codemirror_mode': 'shell',
                      'mimetype': 'text/x-sh',
                      'file_extension': '.ps1'}
@@ -61,10 +62,9 @@ class PowerShellKernel(Kernel):
             if not self.proxy:
                 self.__createProxy()
 
-            output = self.proxy.run_command(code)
-
-            message = {'name': 'stdout', 'text': output}
-            self.send_response(self.iopub_socket, 'stream', message)
+            for output in self.proxy.run_command(code):
+                message = {'name': 'stdout', 'text': output}
+                self.send_response(self.iopub_socket, 'stream', message)
 
             return {'status': 'ok', 'execution_count': self.execution_count,
                     'payload': [], 'user_expressions': {}}
