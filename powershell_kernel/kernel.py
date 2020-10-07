@@ -13,7 +13,7 @@ import traceback
 from powershell_kernel import subprocess_repl, powershell_proxy
 from powershell_kernel.util import get_powershell
 
-__version__ = '0.1.3'
+__version__ = '0.1.4'
 
 version_pat = re.compile(r'version (\d+(\.\d+)+)')
 
@@ -33,7 +33,6 @@ class PowerShellKernel(Kernel):
         return self._banner
 
     language_info = {'name': 'powershell',
-                     'version': "0.1.3",
                      'codemirror_mode': 'shell',
                      'mimetype': 'text/x-sh',
                      'file_extension': '.ps1'}
